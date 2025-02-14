@@ -23,7 +23,29 @@ public partial class EditContactPage : ContentPage
 		set
 		{
 			contact = ContactRepository.GetContactById(int.Parse(value));
-			lblName.Text = contact.Name;
+			if(contact != null)
+			{
+				contactCtrl.Name = contact.Name;
+				contactCtrl.Phone = contact.Phone;
+				contactCtrl.Email = contact.Email;
+				contactCtrl.Address = contact.Address;
+			}
 		}
+	}
+
+	private void btnUpdate_Clicked(object sender, EventArgs e)
+	{
+		contact.Name = contactCtrl.Name;
+		contact.Phone = contactCtrl.Phone;
+		contact.Email = contactCtrl.Email;
+		contact.Address = contactCtrl.Address;
+
+		ContactRepository.UpdateContact(contact.ContactId, contact);
+		Shell.Current.GoToAsync("..");
+	}
+
+	private void contactCtrl_OnError(object sender, string e)
+	{
+		DisplayAlert("Error", e, "OK");
 	}
 }
