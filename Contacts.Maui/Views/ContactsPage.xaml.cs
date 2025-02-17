@@ -1,5 +1,7 @@
 using Contacts.Maui.Models;
+using Microsoft.Maui.ApplicationModel.Communication;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
 using Contact = Contacts.Maui.Models.Contact;
 
 namespace Contacts.Maui.Views;
@@ -17,8 +19,8 @@ public partial class ContactsPage : ContentPage
 	protected override void OnAppearing()
 	{
 		base.OnAppearing();
-		var contacts = new ObservableCollection<Contact>(ContactRepository.GetContacts());
-		listContacts.ItemsSource = contacts.ToList();
+		SearchBar.Text = string.Empty;
+		LoadContacts();
 	}
 
 	private async void listContacts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
@@ -38,4 +40,25 @@ public partial class ContactsPage : ContentPage
 	{
 		Shell.Current.GoToAsync(nameof(AddContactPage));
 	}
+
+	private void MenuItem_Clicked(object sender, EventArgs e)
+	{
+		var menuItem = sender as MenuItem;
+		var contact = menuItem.CommandParameter as Contact;
+		ContactRepository.DeleteContact(contact.ContactId);
+		LoadContacts();
+	}
+
+	private void LoadContacts()
+	{
+		var contacts = new ObservableCollection<Contact>(ContactRepository.GetContacts());
+		listContacts.ItemsSource = contacts.ToList();
+	}
+
+	private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
+	{
+		var contacts = new ObservableCollection<Contact>(ContactRepository.SearchContacts(((SearchBar)sender).Text));
+		listContacts.ItemsSource = contacts;
+	}
+
 }
